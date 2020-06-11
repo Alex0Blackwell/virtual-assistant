@@ -1,13 +1,13 @@
 # Voice recognition project
-# This is the voice assistant Grimmels
+# This is the voice assistant Gilbert
 # Extremely powerfull
 
 import os, time, random, wavio
 import sounddevice as sd
 import speech_recognition as sr
 
-class UI(object):
-    """docstring for UI."""
+class UI():
+    """To help with the terminal UI"""
 
     def wrapMessage(self, message):
         """returns string with a width of 30 chars, wrapped in hyphens"""
@@ -40,7 +40,7 @@ class UI(object):
 
 
 class Bot():
-    """docstring for Bot."""
+    """For all the bots features: responses, actions, ect..."""
 
     def __init__(self):
         self.isWindows = False
@@ -49,71 +49,70 @@ class Bot():
     def respond(self, message):
         usrL = message.lower()
         unknown = ["My creator doesn't know what he's doing. That's probably you isn't it?",
-                   "My name is GRIMMELS (I don't understand)",
+                   "My name is Gilbert (I don't understand)",
                    "I'm a computer program. I don't know how to respond and I have no fear."]
-        greeting = ['hi', 'hey', 'hello', 'how\'s it going', 'hey grimmels', 'how\'s life', 'how are things',
+        greeting = ['hi', 'hey', 'hello', 'how\'s it going', 'hey Gilbert', 'how\'s life', 'how are things',
                     'what\'s cracking', 'what\'s good', 'how are you', 'what\'s up',
                     'what is up', 'how are ya']
-        greetingRes = ["Hello. They call me Grimmels.", "Oh hello!", "Oh Hi!"
-                       "Hello, my name is Grimmels but you can call me \"The Grim Reaper\"",
+        greetingRes = ["Hello. They call me Gilbert.", "Oh hello!", "Oh Hi!"
+                       "Hello, my name is Gilbert but you can call me \"The Grim Reaper\"",
                        "Hello! I love meeting new people! I don't remember any of them..."]
 
         res = ""
         for i in range(len(greeting)):
-            if(greeting[i] in usrL):
+            if(f" {greeting[i]} " in usrL):
                 res = random.choice(greetingRes)
                 break
 
+        if('gilbert' in usrL):
+            res += " I Can't believe you know my name! I must be famous!"
+
         if('minute' in usrL or 'second' in usrL or 'hour' in usrL):
-            # Prepare the timer
-            usrLst = []
-            hour = 0
-            min = 0
-            sec = 0
-            if('-' in usrL):
-                # Sometimes it will be in the format of "22-minutes" ect...
-                usrL = usrL.replace('-', ' ')
-            usrLst = usrL.split()
+            # remove hyphens, and "hours minutes seconds"
+            timeWords = ["hour", "minute", "second"]
+            usrL = usrL.replace('-', ' ')
+            for i in range(len(timeWords)):
+                usrL = usrL.replace(timeWords[i]+'s', timeWords[i])
 
-            if('hour' in usrL):
-                numIndex = usrLst.index('hour') - 1  # Get number before "hour"
-                if(usrLst[numIndex] == 'one'):  # 'one' is the only case like this
-                    # All other numbers show numerical form eg) 22
-                    hour = 1
-                else:
-                    hour = int(usrLst[numIndex])
-            if('minute' in usrL):
-                numIndex = usrLst.index('minute') - 1
-                if(usrLst[numIndex] == 'one'):
-                    min = 1
-                else:
-                    min = int(usrLst[numIndex])
-            if('second' in usrL):
-                numIndex = usrLst.index('second') - 1
-                if(usrLst[numIndex] == 'one'):
-                    sec = 1
-                else:
-                    sec = int(usrLst[numIndex])
+            messageIn = usrL.split()
 
-            hText = ''
-            mText = ''
-            sText = ''
-            if(hour > 0):
-                hText = f" {hour} hour"
-            if(min > 0):
-                mText = f" {min} minute"
-            if(sec > 0):
-                sText = f" {sec} second"
-            time = ""
+            hours = mins = secs = 0
+
+            for i in range(len(messageIn)):
+                for j in range(len(timeWords)):
+                    if(messageIn[i] == timeWords[j]):
+                        numBefore = messageIn[i-1]
+                        if(numBefore.isdigit()):
+                            if(j == 0):
+                                hours = int(numBefore)
+                            if(j == 1):
+                                mins = int(numBefore)
+                            if(j == 2):
+                                secs = int(numBefore)
+                        elif(numBefore == "one"):
+                            if(j == 0):
+                                hours = 1
+                            if(j == 1):
+                                mins = 1
+                            if(j == 2):
+                                secs = 1
+
+
+            hText = mText = sText= ""
+            if(hours > 0):
+                hText = f" {hours} hour"
+            if(mins > 0):
+                mText = f" {mins} minute"
+            if(secs > 0):
+                sText = f" {secs} second"
+
             ui = UI()
             print(ui.wrapMessage(f"Ok, setting a{hText}{mText}{sText} timer"))
             print(' '*13 + "...")
-            self.timer(hour, min, sec)
+            self.timer(hours, mins, secs)
             res += f"Your{hText}{mText}{sText} timer is up!"
 
-        elif('grimmels' in usrL):
-            res += " I Can't believe you know my name! I must be famous!"
-        else:
+        if(len(res) == 0):
             res = random.choice(unknown)
 
         return res
@@ -133,15 +132,20 @@ class Bot():
             time.sleep(1)  # Wait a second
             cSec += 1
 
+
+
 class Audio():
-    """docstring for Audio."""
+    """
+    for everything related to audio, recording, saving files,
+    reading files, getting speach to text, ect...
+    """
 
     def setValidRecording(self):
         """get valid samplerates and channels, return true if found, false otherwise"""
         # from most probable to least, testing better rates first
         self.channels = 0
         self.fs = 0
-        sampleRates = [44100, 50000, 48000, 44056, 32000, 22050, 16000, 11025, 8000]
+        sampleRates = [16000, 44100, 48000, 44056, 32000, 22050, 16000, 11025, 8000]
 
         noValid = True
         c = 0
@@ -169,7 +173,7 @@ class Audio():
         """returns the text of what was said"""
 
         # Save a file of what the mic captured
-        wavio.write('input.wav', self.recording, self.fs, sampwidth=2)
+        wavio.write('input.wav', self.recording, self.fs, sampwidth=3)
 
         micInput = sr.AudioFile('input.wav')
 
@@ -178,14 +182,19 @@ class Audio():
             # Uses first second in the offset time, subtract 1 because it is used for ambient
             # noise adjustment. Note this 1 second will always exist because the countdown
             audio = self.r.record(source, duration=elapsed)
-        words = self.r.recognize_google(audio)  # let's make Google do the hard work
+
+        try:
+            words = self.r.recognize_google(audio)  # let's make Google do the hard work
+        except:
+            ui = UI()
+            print()
+            print(ui.wrapMessage(("Your audio could not be understood. This is an issue with the microphone. "
+                                 "Make sure your microphone is not muted and is working properly. An audio "
+                                 "file \"input.wav\" has been generated so you can hear what your voice "
+                                 "recording sounds like.")))
+            print()
 
         return words
-
-
-
-
-
 
 
 
@@ -230,6 +239,7 @@ def main():
 
     if(os.path.exists("input.wav")):
         os.remove("input.wav")
+
 
 
 if __name__ == '__main__':

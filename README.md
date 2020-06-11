@@ -1,19 +1,50 @@
-# Virtual Assistant-Grimmels:
-This is a python based virtual assistant (named Grimmels). The assistant has the ability to parse speech to text and with this text, add features.
+# Virtual Assistant:
 
-Among the virtual assistants' features include responding to greeting-type phrases and setting timers.
+## Table of contents
+* [Overview](#overview)
+* [Examples](#examples)
+* [Technologies](#technologies)
+* [Setup](#setup)
+* [Limitations](#limitations)
 
-The program uses the following modules for recording / writing .wav files, and recognizing speech to text:
--    sounddevice
--    speech_recognition
--    scipy.io.wavfile
--    wavio
+## Overview
+This is a python based virtual assistant that can respond to greetings and can also set timers. The bot works by running the program which will start the voice recording. The recording can be stopped by pressing enter. Your voice will then be translated to text by the Google speech recognition API and replied to by the bot.
 
-## Installation:
-To run the virtual assistant, the necessary modules must be installed. Utilizing pip, the process is as follows:
+## Examples
+### Screenshots of Terminal
 
-    pip install sounddevice
-    pip install speech_recognition
-    pip install scipy.io.wavfile
-    pip install wavio
-    pip install win10toast
+> Greeting response
+
+![Screenshot](pictures/greeting.png "His name is Gilbert!")
+
+> Setting a timer
+
+![Screenshot](pictures/timer.png "Waited 1 minute 30 seconds")
+
+
+## Technologies
+- **Python 3.8**
+- **SpeechRecognition 3.8**
+  - api for parsing speach to text
+- **sounddevice 0.3**
+  - get recording from microphone
+  - reading *.wav* file
+- **wavio 0.0.4**
+  - write recording to *.wav* file
+
+Note this method does not use PyAudio which must be manually compiled. Instead, by using these technologies, all the requirements are contained within the [requirements.txt](requirements.txt) file
+
+
+## Setup
+To run this project, install the requirements and then run the program:
+
+    pip3 install -r requirements
+    python voiceRecognition.py
+
+## Limitations
+- [ ] if the audio cannot be recognised, it's up to the user to fix their microphone troubles
+  - there is testing for what channels and sample rates are supported but that doesn't guarantee it to work
+- [ ] sometimes the audio recording is sped up
+
+## License
+Licensed under the [GNU General Public License v3.0](LICENSE)
